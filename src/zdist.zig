@@ -4,15 +4,12 @@ const mem = std.mem;
 /// Hamming distance between two strings
 pub fn hamming_distance(astr: []const u8, bstr: []const u8) !u32 {
     if (astr.len != bstr.len) return error.UnequalLength;
-
     if (mem.eql(u8, astr, bstr)) return 0;
 
     var dist: u32 = 0;
-
     for (astr, bstr) |a, b| {
         if (a != b) dist += 1;
     }
-
     return dist;
 }
 
@@ -24,9 +21,13 @@ test "Hamming distance" {
     try testing.expectError(error.UnequalLength, hamming_distance("short", "longer"));
 }
 
+/// Jaro-winkler configuration
 pub const JaroWinklerOptions = struct {
+    /// Default prefix scale
     prefix_scale: f32 = 0.1,
+    /// Default prefix max length
     prefix_max_length: u32 = 4,
+    /// Default boost threshold
     boost_threshold: f32 = 0.7,
 };
 
@@ -52,26 +53,38 @@ test "Jaro winkler" {
 pub fn levenshtein_distance(astr: []const u8, bstr: []const u8) u32 {
     _ = astr;
     _ = bstr;
-    // if (mem.eql(u8, astr, bstr)) return 0;
-    //
-    // const m = astr.len;
-    // const n = bstr.len;
-    //
-    // var matrix = [_][n]u32{[_]u32{0} ** n} ** m;
-    //
-    // for (astr, 0..) |a, i| {
-    //     for (bstr, 0..) |b, j| {
-    //         _ = matrix;
-    //     }
-    // }
-    //
-    // return matrix[m - 1][n - 1];
+    return 0;
 }
 
 /// Longest common subsequence algorithm
 pub fn lcs_distance(astr: []const u8, bstr: []const u8) u32 {
-    _ = astr;
-    _ = bstr;
+    const n = astr.len;
+    const m = bstr.len;
 
-    return 0;
+    var prev = [_]u32{0} ** (m + 1);
+    var curr = [_]u32{0} ** (m + 1);
+
+    for (1..n + 1) |i| {
+        for (1..m + 1) |j| {
+            if (astr[i - 1] == bstr[j - 1]) {
+                curr[j] = 1 + prev[j - 1];
+            } else {
+                curr[j] = @max(prev[j], curr[j - 1]);
+            }
+        }
+        prev = curr;
+    }
+
+    return prev[m];
+}
+
+test "LCS" {
+    const testing = std.testing;
+
+    const a = "abc";
+    const b = "dbc";
+
+    const result = lcs_distance(a, b);
+
+    try testing.expectEqual(2, result);
 }

@@ -6,7 +6,7 @@ String distance library written in zig
 
 - [x] Hamming distance
 - [ ] Levenshtein distance
-- [ ] Longest common subsequence distance
+- [ ] Longest common subsequence (LCS) distance
 - [ ] Jaro-Winkler distance
 
 ## Usage
